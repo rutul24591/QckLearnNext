@@ -1,36 +1,163 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NOTES:
 
-## Getting Started
+## NEXT JS
 
-First, run the development server:
+Next.js is a react framework for building full-stack web applications.
+Its not feasible to create a fully-featured application ready for production.
+React is a library for building user interfaces.
+You need to make decisions about other features sucj as routing, data fetching and more.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Next.js uses react for building user interfaces.
+It provides additional features that enable you to build production-ready applications.
+These features including routing, optimized rendering, data fetching, bundling, compiling and more.
+We don't need to install additional packages as Next provided everything we need.
+Conventions should be followed to implement the above features.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## USAGE:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. ROUTING - For routing in react we need to make use of third party packages, but Next.js simplifies by providing file based routing by creating files and routing is automatically generated or taken care.
+2. API ROUTES - Build both Client and server side components and API's within the same application for seamless integration between Backend and frontend.
+3. Rendering - Supports both client and server side rendering. Improved performance and SSO when implemented properly.
+4. Data fetching - Streamline data fetching.
+5. Styling - Flexible with styling approaches support css modules.
+6. Optimization - Out of box optimatization for images, fonts , scripts enhancing application performance.
+7. Dev and prod build system - Focus on writing code instead of dealing with configurations.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## SERVER SIDE COMPONENTS AND CLIENT SIDE COMPONENTS:
 
-## Learn More
+1. By default all components in next js are server side components.
+2. To define a client side component(which is the traditional react component) we have to declare 'use client' at the top of the file.
+3. Client side components cannot function like server side components and won't act and display in route.
+4. Server side components cannot make use of functions that client side component provides like using hooks.
 
-To learn more about Next.js, take a look at the following resources:
+## ROUTING:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. File based routing in Next.js.
+2. Define a folder called about and within that declard page.tsx ( This convention needs to be followed).
+3. Navigate to localhost:3000/about. The component defined within about/page.tsx get rendered.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Conventions:
 
-## Deploy on Vercel
+1. All routes must live inside app folder with src directory.
+2. Route files must be named either page.js or page.tsx.
+3. Each folder represents a segment of the URL path.
+4. Routes are directly tied to the folder name of directory.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## NESTED ROUTING:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Define a folder called blog and within that declard page.tsx.
+2. Create 2 separate folders within blog folder named first and second respectively.
+3. Create page.tsx within first and second folder.
+4. Now navigate for localhost:3000/blog, localhost:3000/blog/first and localhost:3000/blog/second.
+
+## DYNAMIC ROUTING:
+
+1. Define a folder called products and within that declard page.tsx.
+2. Add following contents within.
+
+   ```
+   <>
+    <h1>Product Lists</h1>
+    <h2> Product 1</h2>
+    <h2> Product 2</h2>
+    <h2> Product 3</h2>
+   </>
+
+   ```
+
+3. Create a new folder within products with the name wrapped as [productId] and within it define page.tsx
+4. Add following content
+
+   ```import React from 'react';
+
+      const ProductDetails = ({ params }: { params: { productId: string } }) => {
+        return (
+          <>
+            <h1>Details about product {params.productId}</h1>
+          </>
+        );
+      };
+
+      export default ProductDetails;
+   ```
+
+5. Now navigate to localhost:3000/products, localhost:3000/products/1 and localhost:3000/1000.
+
+## NESTED DYNAMIC ROUTE:
+
+Please check docs and docs1 folder to completely understand it as it is too verbose to describe here.
+
+## CATCH ALL SEGMENTS:
+
+Use [...slug] or [[...slug]].
+Slug is an array with queryId as params. Eg [1, 101] // feature/1/concept/101
+The essential difference between [...slug] and [[...slug]] is with [[..slug]] paves a way for route /docs to render and return the last statement. Navigate to localhost:3000/docs and localhost:3000/docs1 to know the difference.
+
+Question: But having a page.tsx in docs should behave same right?
+If UI is to be consistent or same then we can have page.tsx in docs folder or when page UI changes based on url we keep it [[...slug]] folder.
+
+## PRIVATE ROUTE:
+
+1. \_nameoffolder indicated private route which next won't serve. (Check \_lib folder for this)
+2. So \_ at start of folder name serves to create private route making it reserve.
+3. To have a folder that starts with an '\_' use %5F instead. (Check %5Flib folder for this)
+
+Advantages:
+
+1. Keep UI logic separate from routing logic.
+2. Having a consistent way to organize internal files in our project.
+3. Easier grouping.
+4. Avoiding potential naming conflict with future Next.js files naming convension.
+
+## ROUTE GROUPS:
+
+1. Wrapping a folder name informs next js to tried the route group to exclude from routes url path.
+2. Name will be omitted from url path.
+3. Route groups helps us to organize our code better.
+
+## LAYOUTS:
+
+1. A page is UI that is unique to a route.
+2. A layout is UI that is shared between multiple pages in the app.
+3. You can define a layout by default exporting a react component from layout.js or layout.tsx file. This is the mandatory layout.
+4. The component as in 3 should accept a children prop that will be populated with a child page during rendering.
+5. Check layout.tsx file.
+
+## NESTED LAYOUTS:
+
+1. Layouts can be nested. It could be specific to product details page. You can define it within the [productId] folder.
+2. Check layout.tsx in products/[productId] folder.
+3. Navigate to localhost:3000/products/100 and check it out.
+
+## ROUTE GROUPS LAYOUT:
+
+1. Can apply layouts only to specific components within a route group.
+2. Create a new folder within the (auth) called (with-layout) and add the layout.tsx with contents copied from other layout.tsx from products folder.
+3. Add the register and login folder to this with-layout folder and navigate to localhost:3000/register and localhost:3000/login to see the layout being applied with contents.
+4. localhost:3000/forgot-password won't have the changes for local layout as it falls outside the directory of (with-layout)
+
+### Not found page
+
+1. Generic not found page can be used by creating a file in app. File should be named not-found as per convension.
+2. Not found component can be imported using
+
+   `import { notFound } from 'next/navigation';`
+
+   and calling
+
+   `notFound();`
+
+3. Each route can have a specific not-found page, so when route doesn't match the not-found within that route is rendered instead of parent one in app folder.
+4. NotFound component does not accept any props.
+
+Question: So what about if we need to show custom messages?
+
+`import {usePathname} from "next/navigation";`
+
+## File colocation:
+
+Keeping UI or components files separate in a component folder and include using
+
+`import BarChart from '@/components/barChart';`
+
+Or Make use of Private routes.
