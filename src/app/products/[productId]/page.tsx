@@ -1,4 +1,5 @@
 import React from 'react';
+import { Metadata } from 'next';
 
 /** Old 14.*.* next implementation */
 // const ProductDetails = ({ params }: { params: { productId: string } }) => {
@@ -9,11 +10,20 @@ import React from 'react';
 // 	);
 // };
 
-const ProductDetails = async ({
-	params,
-}: {
+type Props = {
 	params: Promise<{ productId: string }>;
-}) => {
+};
+
+export const generateMetadata = async ({
+	params,
+}: Props): Promise<Metadata> => {
+	const id = (await params).productId;
+	return {
+		title: `Product ${id}`,
+	};
+};
+
+const ProductDetails = async ({ params }: Props) => {
 	const productId = (await params).productId;
 
 	return (

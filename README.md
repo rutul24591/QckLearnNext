@@ -111,9 +111,10 @@ Advantages:
 
 ## ROUTE GROUPS:
 
-1. Wrapping a folder name informs next js to tried the route group to exclude from routes url path.
+1. Wrapping a folder name with () informs next js to tried the route group to exclude from routes url path.
 2. Name will be omitted from url path.
 3. Route groups helps us to organize our code better.
+4. Nesting is possible in route groups. Route groups can be nested within each other.
 
 ## LAYOUTS:
 
@@ -135,6 +136,10 @@ Advantages:
 2. Create a new folder within the (auth) called (with-layout) and add the layout.tsx with contents copied from other layout.tsx from products folder.
 3. Add the register and login folder to this with-layout folder and navigate to localhost:3000/register and localhost:3000/login to see the layout being applied with contents.
 4. localhost:3000/forgot-password won't have the changes for local layout as it falls outside the directory of (with-layout)
+
+## MULTIPLE ROOT LAYOUTS:
+
+Check video.
 
 ### Not found page
 
@@ -161,3 +166,15 @@ Keeping UI or components files separate in a component folder and include using
 `import BarChart from '@/components/barChart';`
 
 Or Make use of Private routes.
+
+## ROUTING METADATA:
+
+1. The metadata API in Next.js is a powerfule feature that lets us define metadata for each page.
+2. Metadata ensures our content looks great when its shared or indexed by search engines.
+3. Two ways to handle metadata in layout.tsx or page.tsx.
+
+Convensions:
+
+1. Both layout.tsx and page.tsx can export metadata. Layout metadata applies to all its pages, while page metadat is specific to that page.
+2. Metadata follows a top-down order, starting from the root level.
+3. When metadata exists in multiple places along a route, they merge together, with page metadata overriding layout metadata for matching properties.
