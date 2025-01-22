@@ -1,3 +1,6 @@
+/**
+ * We cannot use of a metadata object and a generateMetadata within a same componen/Functions. Its either or.
+ */
 import React from 'react';
 import { Metadata } from 'next';
 
@@ -18,8 +21,14 @@ export const generateMetadata = async ({
 	params,
 }: Props): Promise<Metadata> => {
 	const id = (await params).productId;
+	const title = await new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(`IPhone ${id}`);
+		}, 1000);
+	});
 	return {
-		title: `Product ${id}`,
+		// title: `Product ${id}`,
+		title: `Product ${title}`,
 	};
 };
 

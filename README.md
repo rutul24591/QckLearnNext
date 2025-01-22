@@ -178,3 +178,28 @@ Convensions:
 1. Both layout.tsx and page.tsx can export metadata. Layout metadata applies to all its pages, while page metadat is specific to that page.
 2. Metadata follows a top-down order, starting from the root level.
 3. When metadata exists in multiple places along a route, they merge together, with page metadata overriding layout metadata for matching properties.
+4. We cannot use of a metadata object and a generateMetadata within a same componen/Functions. Its either or.
+5. Will not work is use client components.
+
+Title for routing metadata are of 2 types. One is string like "About me" or an object. Check the blog component and root layout
+
+## LINK COMPONENT NAVIGATION:
+
+1.  Up until now we used to manipulate the url in browser to view content, but actually what about navigation in when a link is clicked(actual usage in world apps). Here comes the Link navigation.
+2.  For client side navigation, Next.js gives `<Link>` component.
+3.  The `<Link>` component extends HTML's `<a>` (anchor) element, and its primary way to navigate between routes in Next.js.
+4.  To use import from `"next/link"`.
+
+         <Link href='/blog'>Blog</Link>
+
+## PARAMS and SEARCH PARAMS
+
+For a given URL,
+
+1. `params` is a promise that resolves to an object containing the dynamic route parameters(Eg id)
+2. `searchParams` is a promise that resolved to an object containing the query parameters(like filters and sorting)
+3. While page.tsx has access to both params and searchParams, layout.tsx has access to only params.
+
+Async/await support is available for only server components and not the client components.
+For accessing params and searchParams in client components, we will need to make use of `use` hook in react.
+Check the implementation in articles/
