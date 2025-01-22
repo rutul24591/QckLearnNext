@@ -7,7 +7,18 @@ export const metadata: Metadata = {
 	},
 };
 
-const Blog = () => {
+/** Normal flow */
+// const Blog = () => {
+// 	return <h1>My Blog</h1>;
+// };
+
+/** To execute a loading and display content of loading */
+const Blog = async () => {
+	await new Promise((resolve) => {
+		setTimeout(() => {
+			resolve('Delay');
+		}, 3000);
+	});
 	return <h1>My Blog</h1>;
 };
 

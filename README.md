@@ -203,3 +203,100 @@ For a given URL,
 Async/await support is available for only server components and not the client components.
 For accessing params and searchParams in client components, we will need to make use of `use` hook in react.
 Check the implementation in articles/
+
+## NAVIGATING PROGRAMATICALLY
+
+In case consider a marketplace, where user places an order and post that we want to redirect the user to home page or as matter of fact any other route in application, we can make use of useRouter or redirect.
+
+         import {useRouter, redirect} from "next/navigation";
+
+         const router = useRouter();
+
+         /** Redirect to home page */
+         router.push('/');
+
+         /** Go back in history */
+         router.back();
+
+         /** Go forward in history */
+         router.forward();
+
+         /** To replace instead of adding entry to history stack*/
+         router.replace('/');
+
+         /** We can also use redirect instead of useRouter. Check for example in products -> reviews */
+         redirect('/');
+
+## TEMPLATES:
+
+1.  Templates are similar to layouts in that they also share same UI across multiple components/pages in our app.
+2.  Whenever user navigates between routes sharing a template, you get completely a fresh start in terms with
+    - A new template component instance is mounted.
+    - DOM elements are recreated.
+    - State is cleared.
+    - Effects are resynchronized
+3.  Like layouts, templates need to accept children prop to render the nested route segments.
+4.  Layouts and templates can be used to together in which children of layout are rendered first before template and then page.
+5.  Layout should be a go to most of the time.
+
+        Rendering takes place in following sequence.
+
+        Layout(children, layout.tsx) -> template(children, template.tsx) ->  page contents(page.tsx)
+
+Take example of input element in (auth) -> layout.tsx.
+Here the input element is shared between all 3 register, login, forgot-password routes.
+So if we type something in input box and then make a switch between the routes, the input value remains as it is.(If layout.tsx is defined)
+With template.tsx, the input box will get cleared when switch is made between the routes. (Try renaming layout.tsx to template.tsx and go to /register, type something and make a switch to /login page)
+
+## LOADING (loading.tsx)
+
+1. Loading provides users immediate feedback when they navigate between routes making the application feel responsive and users know they actually performed some action.
+2. Next.js keeps shared layouts interactive while the new content loads. Users can make use of menu/sidebar even when main content isn't ready yet.
+
+## ERROR HANDLING (error.tsx)
+
+1. Can be done by creating new error.tsx file in a route.
+2. ErrorBoundary must be a client component.
+3. error.tsx automatically wraps route segments and their nested children in a React Error Boundary.
+4. You can create custom error UIs for specific segment using file system heirarchy.
+5. Error.tsx isolates errors to affected segments while keeping rest of the application functional.
+6. It enables you to attempt to recover from an error without requiring a full page reload.
+
+#### HANDLING ERRORS IN A NESTED ROUTE:
+
+    - Errors always bubbles up to find the closest error boundary.
+    - An error.tsx file not only handles errors in it own folder, but for all nested child segments below it too.
+    - By strategically placing error.tsx files at different levels in your route folders, you can control exactly how detailed your error handling gets.
+    - Where you put you error.tsx files makes a huge difference; It determines exactly which parts of your UI gets affected when things go wrong.
+
+Eg. Try moving the error.tsx file from reviewId folder to products folder(check difference now on UI) and again placing it back in reviewId folder(check difference on UI now).
+
+#### HANDLING ERRORS IN LAYOUTS:
+
+    - An error.tsx will handle errors for all of its nested segments(child).
+    - But interesting catch with layout.tsx component within same segment.
+    - The error boundary won't catch the errors thrown in layout.tsx within the same segment because of how the hierarchy works.
+    - The layout sits above the error boundary in the component tree or heirarchy(Check below heirarchy)
+    - Solution is to move the error.tsx to parent of layout.tsx
+
+### HANDLING GLOBAL ERRORS:
+
+    - If an error boundary can't catch errors in the layout.tsx file from the same segment, what about the errors in root layout. It doesn't have any parent segment. How to handle those?
+    - Next.js provides a special file called `global-error.tsx` that goes in the root app directory.
+    - This is the last line of defense when something goes catastrophically wrong at the highest level of the app.
+    - Need to include HTML and body tags here in global-error.tsx, as component is replaces the root layout.
+    - Works only in production mode(as in dev will throw error).
+
+## COMPONENT HEIRARCHY
+
+      <Layout>
+         <Template>
+            <ErrorBoundary fallback={<Error />}>   // Error boundary for Run time errors, error.tsx
+               <Suspense fallback={<Loading />}>     // Suspense from loading.tsx
+                  <ErrorBoundary fallback={<NotFound />}> // Error boundary for Missing resources, not-found.tsx
+                     <Page/>
+                  </ErrorBoundary>
+               </Suspense>
+            </ErrorBoundary>
+         </Template>
+      </Layout>

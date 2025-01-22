@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { notFound } from 'next/navigation';
+// import {notFound} from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 // const ReviewDetails = ({
 // 	params,
@@ -19,6 +20,10 @@ import { notFound } from 'next/navigation';
 // 	);
 // };
 
+const getRandomInteger = (count: number) => {
+	return Math.floor(Math.random() * count);
+};
+
 const ReviewDetails = async ({
 	params,
 }: {
@@ -28,9 +33,17 @@ const ReviewDetails = async ({
 	// const reviewId = (await params).reviewId;
 
 	const { productId, reviewId } = await params;
+	const random = getRandomInteger(2);
+
+	/** Explicitly throwing error to showcase error handling */
+	if (random === 1) {
+		throw new Error('Error loading review');
+	}
 
 	if (parseInt(reviewId) > 1000) {
-		notFound();
+		// notFound();
+
+		redirect('/');
 	}
 	return (
 		<>
