@@ -300,3 +300,287 @@ Eg. Try moving the error.tsx file from reviewId folder to products folder(check 
             </ErrorBoundary>
          </Template>
       </Layout>
+
+## PARALLEL ROUTES
+
+1. Parallel routes is an advanced routing mechanism that lets us render multiple pages simultaneously within the same layout.
+2. Parallel routes in next.js are defined using a feature called `slots`.
+3. Slots help organize content in a modular way.
+4. To create a slot, we make use of the `@folder` naming convention.
+5. Each defined slot automatically becomes a prop in its corresponding `layout.tsx` file.
+
+   Note: Slots are not route segments and don't affect your url structure. Try navigating to localhost:3000/complex-dashboard/users or @users, we get `Page not found`.
+   Children prop in layout.tsx is an implicit slot that doesn't need its own folder. `complex-dashboard/page.tsx` is same as `complex-dashboard/children/page.tsx`.
+
+   Use cases of parallel routes:
+
+   - Dashboard with multiple sections
+   - Split-view interfaces
+   - Multi-pane layouts
+   - Complex admin interfaces
+
+   Benefits:
+
+   - Parallel routes are great for splitting a layout into manageable slots(especially when different teams are working on different parts). But that not the main benefit(can be done using regular components as well).
+
+   - Independent route handling.
+     Each slot in your layout, such as users, revenue, notifications, can handle its own loading and error states.
+     This granular control is particularly useful in scenarios where different sections of the page load at varying speeds or encounter unique errors. We can have loading(if time consuming) or error shown for that particular slot(users, revenue, notifications)
+
+   - Sub-navigations.
+     Each slot can essentially function as a mini-application, complete with its own navigation and state management. Users can interact with each section separately, applying filters, sorting data or navigating through pages without affecting other parts.
+     Eg. For notifications we can have users view archived notification instead of default one only changing the url `/complex-dashboard/archived` (archieved) or `/complex-dashboard` (default). Think of as a button/link archieved or default in notifications component.
+
+#### UNMATCHED ROUTE:
+
+1.  Navigation from UI
+    When navigating through the UI(clicking links), Next.js keeps showing whatever was in the unmatched slots before.(For children, users, revenue)
+2.  Page reload
+    Next.js looks for a `default.tsx` file in each unmatched slot.
+    This file is critical as it serves as a fallback to render content when the framework cannot retrieve a slot's active state from the current URL. Without this file, we get a 404(Page not found).
+3.  Check the default.tsx file in each users, revenue, root of complex-dashboard(for children). When on `/complex-dashboard/archived` route try refresing the page now, content within this default.tsx for each parallel route will get displayed.
+
+#### CONDITIONAL ROUTES
+
+1. Imagine you want to show different content based on whether a user is logged in or not.
+2. You might want to display a dashboard for authenticated users but show a login page for those who aren't authenticated.
+3. Conditional routes allow us to achieve this while maintaining completely separate code on same URL.
+4. Check the login slot implementation in complex-dashboard.
+
+#### INTERCEPTING ROUTES
+
+1. Intercepting routes is an advanced routing mechanism that allows you to load a routes from another part of your application within the current layout.
+2. It's particularly useful when you want to display new content while keeping youe user in the same context.
+3. Consider a home page, when user clicks on login button, instead of routing to localhost:3000/login page, when can make use of modal(with `localhost:3000/login` as url).
+4. Consider a photo gallery, when user clicks on a photo, instead of showing a dedicated photos page at(`localhost:3000/photos/id`) we can enlarge the photo within the same page a modal(with `localhost:3000/photos/id` as url).
+5. So essentially the url is shared or refreshing the page works as well.
+
+   Conventions:
+
+   1. `(.)` to match segments on the same level in folder structure. It is similar to `./`(Current working directory) Check `folder2`(destination) example in `folder1` (source).
+   2. For match segments that is one level above, we make use of `(..)`. Similar to `../`. Check `folder3`(destination) example in `folder1`(source)
+   3. For match segments that is two level above, we make use of `(..)(..)`. Similar to `../../`. Check `folder4` (destination) example called from `folder2`(source)
+   4. `(...)` to match segments from the root app directory. Check `folder5`(destination) example with in `inner-folder2`(source).
+
+#### INTERCEPTING PARALLEL ROUTES
+
+Check the photo-feed folder for code or navigate to localhost:3000/photo-feed
+
+## ROUTE HANDLERS
+
+1. We have learned how to route to pages.
+2. The app router lets you create custom request handlers for your routes using a feature called Route Handlers.
+3. Unlike page routes, which give us HTML content, Route Handlers let us build RESTful endpoints with complete control over the response.
+4. Think of building a Node + Express app.
+5. There is no need to set up and configure a separate server.
+6. Route handlers are great when making external API requests as well. For if you're building an app that needs to talk to third-party services.
+7. Route handlers run server-side, our sensitive info like private keys stays secure and never reaches the browser.
+8. Route handlers are equivalent of API routes in Page router.
+9. Next.JS supports `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEADER` and `OPTIONS`.
+10. If an unsupported method is called, Next.js will return a 405 Method Not Allowed response.
+11. Just like page routes, route handler must live within the `app` folder.
+12. Create hello folder and add new file route.ts(Convention).
+13. Nesting is possible for route handlers just like page routes.
+14. If page router and route handler are present in same folder(page.tsx and route.ts, route.ts take precedence).
+15. To fix point 14, move route.ts into a `api` folder.
+
+##### GET
+
+         export async function GET() {
+            return Response.json(comments);
+         }
+
+##### POST
+
+         export async function POST(request: Request) {
+            const comment = await request.json(); // provides the object coming in body
+            const newComment = {
+               id: comments.length + 1,
+               text: comment.text,
+            };
+
+            comments.push(newComment);
+
+            return new Response(JSON.stringify(newComment), {
+               headers: { 'Content-Type': 'application/json' },
+               status: 201,
+            });
+         }
+
+#### DYNAMIC ROUTE HANDLERS
+
+1. For simple GET and POST, we do no require any specific id for the request, but for UPDATE, PATCH, DELETE we do. This is when dynamic route handlers come into picture.
+2. Dynamic route handlers works similar to dynamic page routes.([id])
+
+##### GET by Id
+
+         /** For now we are interested in accessing id(context) for request, so placing underscore to request */
+         export async function GET(
+            _request: Request,
+            {
+               params,
+            }: {
+               params: Promise<{ id: string }>;
+            },
+         ) {
+            const { id } = await params;
+            const comment = comments.find((comment) => comment.id === parseInt(id));
+
+            return Response.json(comment);
+         }
+
+##### PATCH
+
+         export async function PATCH(
+            request: Request,
+            {
+               params,
+            }: {
+               params: Promise<{ id: string }>;
+            },
+         ) {
+            const { id } = await params;
+            const body = await request.json();
+            const { text } = body;
+
+            const index = comments.findIndex((comment) => comment.id === parseInt(id));
+
+            comments[index].text = text;
+
+            return Response.json(comments[index]);
+         }
+
+##### DELETE
+
+         export async function DELETE(
+            request: Request,
+            {
+               params,
+            }: {
+               params: Promise<{ id: string }>;
+            },
+         ) {
+            const { id } = await params;
+
+            const index = comments.findIndex((comment) => comment.id === parseInt(id));
+            const deletedComment = comments[index];
+
+            comments.splice(index, 1);
+
+            return Response.json(deletedComment);
+         }
+
+#### URL QUERY PARAMETERS
+
+1.  Suppose in the comments array we want to find all comments having `first` in text of the comment.
+2.  We will pass and make a request like: `GET` `localhost:3000/comments?query=first
+3.  For this we will need to modify `GET` request.
+4.  This is especially used for search, sorting, pagination, etc.
+
+         import { type NextRequest } from 'next/server';
+
+         export async function GET(request: NextRequest) {
+            const searchParams = request.nextUrl.searchParams;
+
+            /** This will grab the query params from localhost:3000/comments?query=first i.e first */
+            const query = searchParams.get('query');
+
+            /** In case of multiple params we can get it in same way as above
+            * const id = searchParams.get("id");
+            */
+
+            const filteredComments = query
+               ? comments.filter((comment) => comment.text.includes(query))
+               : comments;
+
+            return Response.json(filteredComments);
+         }
+
+#### HEADERS
+
+1. HTTP Headers represent the metadata assiciated with an API request and response.
+
+##### Request HEADERS
+
+1.  These headers are sent by the client, such as web browser, to the server. They contain essential information about the request, which helps the server understand and process it correctly.
+2.  `User-Agent` which identifies the `browser` and `operating system` to the server.
+3.  `Accept` which indicates the content types like `text`, `video` or `image formats` that the client can process.
+4.  `Authorization` header used by the client to authenticate itself to the server. It carries credentials allowing controlled access to the resources.
+
+         //Options 1
+         import { type NextRequest } from 'next/server';
+
+         export async function GET(request: NextRequest) {
+            const requestHeaders = new Headers(request.headers);
+            console.log(requestHeaders.get('Authorization'));
+
+            return new Response('Profile API data');
+         }
+
+
+
+         //Option 2
+         import {headers} from "next/headers";
+
+         export async function GET(request: NextRequest) {
+            const headerList = await headers();
+            console.log(headerList.get('Authorization'));
+
+            return new Response('Profile API data');
+         }
+
+##### RESPONSE HEADERS
+
+1.  These are send back from the server to the client. They provide information about the server and the data being sent in the response.
+2.  `Content-type` header which indicates the media type of the response. it tells the client what the data type of the returned content is, such as text/html for HTML documents, application/json for JSON data, etc.
+
+         export async function GET(request: NextRequest) {
+            const headerList = await headers();
+            console.log(headerList.get('Authorization'));
+
+            /** This will go as plain/text for response headers. Check network tab in browser*/
+            // return new Response('Profile API data');
+
+            /** This will still go as plain/text for response headers.*/
+            return new Response('<h1>Profile API data</h1>');
+
+            /** This will go as text/html and will be interpreted by browser as html and display as html tag*/
+            return new Response('<h1>Profile API data</h1>', {
+               headers: {
+                  'Content-Type': 'text/html',
+               },
+            });
+         }
+
+#### COOKIES
+
+1.  Cookies are small pieces of data that a server sends to a user's web browser.
+2.  The browser can store the cookies and send them back to the same server with future requests.
+3.  Cookies serve 3 main puspose:
+
+    - Managing session(like user login and shopping carts)
+    - Handling personalization(such as user preferences and themes)
+    - Tracking (Like recording and analyzing user behaviour)
+
+##### Setting cookie:
+         //Option 1
+         return new Response('<h1>Profile API data</h1>', {
+            headers: {
+               'Content-Type': 'text/html',
+               'Set-Cookie': 'theme=dark',
+            },
+         });
+
+         //Option 2
+         import {headers, cookies} from "next/headers";
+
+         const cookieStore = await cookies();
+         cookieStore.set("resultsPerPage", "20");
+
+##### Reading cookie
+         //Option 1
+         const theme = request.cookies.get("theme");
+         console.log(`Cookie`, theme);
+
+         //Option 2
+         console.log(cookieStore.get('resultsPerPage'));
